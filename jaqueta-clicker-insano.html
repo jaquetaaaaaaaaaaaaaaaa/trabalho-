@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>JAQUETA CLICKER INSANO</title>
+
+<style>
+body{
+    background:#0f0f0f;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+h1{
+    font-size:42px;
+}
+
+#jaqueta{
+    font-size:120px;
+    cursor:pointer;
+    transition:0.1s;
+}
+
+#jaqueta:active{
+    transform:scale(0.85) rotate(5deg);
+}
+
+.loja, .skins, .conquistas{
+    background:#1c1c1c;
+    padding:15px;
+    margin:15px auto;
+    width:320px;
+    border-radius:12px;
+}
+
+button{
+    padding:8px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.skinBtn{
+    font-size:24px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🧥 JAQUETA CLICKER INSANO</h1>
+
+<h2>Jaquetas: <span id="contador">0</span></h2>
+
+<div id="jaqueta">🧥</div>
+
+<div class="loja">
+<h3>Loja</h3>
+
+<button onclick="upgradeClique()">
++1 Clique (Custo: <span id="cClique">10</span>)
+</button><br>
+
+<button onclick="comprarFabrica()">
+Fábrica de Jaqueta (Custo: <span id="cAuto">50</span>)
+</button>
+</div>
+
+<div class="skins">
+<h3>Skins de Jaqueta</h3>
+
+<button class="skinBtn" onclick="trocarSkin('🧥')">🧥</button>
+<button class="skinBtn" onclick="trocarSkin('🥷')">🥷</button>
+<button class="skinBtn" onclick="trocarSkin('👑')">👑</button>
+<button class="skinBtn" onclick="trocarSkin('🔥')">🔥</button>
+<button class="skinBtn" onclick="trocarSkin('💎')">💎</button>
+</div>
+
+<div class="conquistas">
+<h3>Conquistas</h3>
+<p id="achievements">Nenhuma ainda...</p>
+</div>
+
+<script>
+
+let jaquetas = 0;
+let porClique = 1;
+let auto = 0;
+
+let custoClique = 10;
+let custoAuto = 50;
+
+let skinAtual = "🧥";
+let conquistas = [];
+
+// ---------- SALVAR ----------
+
+function salvar(){
+    localStorage.setItem("jaquetaSave", JSON.stringify({
+        jaquetas,
+        porClique,
+        auto,
+        custoClique,
+        custoAuto,
+        skinAtual,
+        conquistas
+    }));
+}
+
+function carregar(){
+    let save = localStorage.getItem("jaquetaSave");
+    if(save){
+        let s = JSON.parse(save);
+        jaquetas=s.jaquetas;
+        porClique=s.porClique;
+        auto=s.auto;
+        custoClique=s.custoClique;
+        custoAuto=s.custoAuto;
+        skinAtual=s.skinAtual;
+        conquistas=s.conquistas;
+        document.getElementById("jaqueta").innerText=skinAtual;
+    }
+}
+
+carregar();
+
+// ---------- CLICK ----------
+
+document.getElementById("jaqueta").onclick=function(){
+    jaquetas+=porClique;
+    efeitoClique();
+    checarConquistas();
+    atualizar();
+}
+
+// ---------- UPGRADES ----------
+
+function upgradeClique(){
+    if(jaquetas>=custoClique){
+        jaquetas-=custoClique;
+        porClique++;
+        custoClique=Math.floor(custoClique*1.6);
+        atualizar();
+    }
+}
+
+function comprarFabrica(){
+    if(jaquetas>=custoAuto){
+        jaquetas-=custoAuto;
+        auto++;
+        custoAuto=Math.floor(custoAuto*1.8);
+        atualizar();
+    }
+}
+
+// ---------- SKINS ----------
+
+function trocarSkin(skin){
+    skinAtual=skin;
+    document.getElementById("jaqueta").innerText=skin;
+    salvar();
+}
+
+// ---------- CONQUISTAS ----------
+
+function desbloquear(nome){
+    if(!conquistas.includes(nome)){
+        conquistas.push(nome);
+        document.getElementById("achievements").innerHTML=
+            conquistas.join("<br>");
+    }
+}
+
+function checarConquistas(){
+    if(jaquetas>=100) desbloquear("🧥 Colecionador de Jaquetas");
+    if(jaquetas>=1000) desbloquear("🔥 Senhor das Jaquetas");
+    if(auto>=10) desbloquear("🏭 Industrial da Moda");
+}
+
+// ---------- AUTO PRODUÇÃO ----------
+
+setInterval(()=>{
+    jaquetas+=auto;
+    atualizar();
+},1000);
+
+// ---------- EFEITO VISUAL ----------
+
+function efeitoClique(){
+    document.body.style.background="#151515";
+    setTimeout(()=>{
+        document.body.style.background="#0f0f0f";
+    },80);
+}
+
+// ---------- UPDATE ----------
+
+function atualizar(){
+    document.getElementById("contador").innerText=Math.floor(jaquetas);
+    document.getElementById("cClique").innerText=custoClique;
+    document.getElementById("cAuto").innerText=custoAuto;
+    salvar();
+}
+
+atualizar();
+
+</script>
+
+</body>
+</html>
